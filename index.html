@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Surprise For You! 🎉</title>
+    
+    <!-- Canvas Confetti Library for mobile celebration effects -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        html { visibility: hidden; }
+        :root {
+            --primary: #ff758c;
+            --secondary: #ff7eb3;
+            --bg-dark: #2d1b2e;
+            --text-light: #ffffff;
+            --accent-gradient: linear-gradient(135deg, rgba(255, 117, 140, 0.15) 0%, rgba(255, 126, 179, 0.15) 100%);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body {
+            background: linear-gradient(135deg, #2d1b2e 0%, #1a0f1c 100%);
+            color: var(--text-light);
+            text-align: center;
+            padding-bottom: 50px;
+        }
+        .hero {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ff758c, #ff7eb3, #fad0c4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 2s infinite alternate;
+        }
+        
+        /* Special Message Card Styles */
+        .message-card {
+            background: var(--accent-gradient);
+            border: 1px solid rgba(255, 117, 140, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 650px;
+            margin: 30px auto;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .message-card p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: #f3e8ee;
+            margin-bottom: 15px;
+        }
+        .message-card p:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white; border: none; padding: 15px 35px; font-size: 1.1rem;
+            border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
+            margin-top: 15px;
+            transition: transform 0.2s ease;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .gallery-section { padding: 40px 20px; max-width: 1000px; margin: 0 auto; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
+        .photo-card { background: rgba(255, 255, 255, 0.05); border-radius: 15px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .photo-card img { width: 100%; height: 250px; object-fit: cover; }
+        .photo-caption { padding: 15px; font-style: italic; color: #ddd; }
+        .audio-control {
+            position: fixed; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px; border-radius: 30px; cursor: pointer; z-index: 1000;
+        }
+        
+        /* Cupcake Modal Overlay Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(26, 15, 28, 0.9);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1; pointer-events: auto;
+        }
+        .modal-content {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px; border-radius: 20px;
+            border: 1px solid rgba(255, 117, 140, 0.3);
+            max-width: 90%; max-height: 85vh;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+            text-align: center; position: relative;
+        }
+        .modal-content img {
+            max-width: 100%; max-height: 65vh; border-radius: 12px; object-fit: contain;
+        }
+        .close-modal {
+            position: absolute; top: -15px; right: -15px;
+            width: 35px; height: 35px; background: var(--primary);
+            color: white; border-radius: 50%; display: flex;
+            justify-content: center; align-items: center;
+            font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.03); } }
+    </style>
+</head>
+<body>
+
+    <!-- Target updated to your custom local voice note file path -->
+    <audio id="bgMusic" loop src="assets/my_voice_note.m4a"></audio>
+    <div class="audio-control" onclick="toggleMusic()">🎵 <span id="musicStatus">Play Voice Note</span></div>
+
+    <section class="hero">
+        <h1 id="birthdayTitle">Happy Birthday, Swapnil! 🎉</h1>
+        
+        <div class="message-card">
+            <p>Happy birthday my favourite human..Today is all about celebrating you! Thank you for bringing so much brightness, laughter, and incredible energy into the world every single day.</p>
+            <p>May this new chapter bring you endless adventures, breakthrough moments, and all the happiness you truly deserve. You make life unforgettable just by being in it! ✨</p>
+        </div>
+
+        <!-- Button target now handles populating and opening the modal directly -->
+        <button class="btn" onclick="showCupcake()">Click for your cupcake ✨</button>
+    </section>
+
+    <section class="gallery-section">
+        <h2>Our Special Memories ✨</h2>
+        <div class="gallery-grid" id="photoGallery"></div>
+    </section>
+
+    <!-- Modal Layout Container for dynamically displaying memory4.jpg -->
+    <div class="modal-overlay" id="cupcakeModal" onclick="closeCupcake()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="close-modal" onclick="closeCupcake()">✕</div>
+            <img src="assets/memory4.jpg" alt="Your Cupcake Surprise" onerror="this.src='https://placehold.co/600x600?text=Cupcake+Image+Not+Found+In+Assets'">
+            <p style="margin-top: 15px; font-style: italic; color: #ff7eb3; font-size: 1.1rem;">Here is your special treat! 🧁🎂</p>
+        </div>
+    </div>
+
+    <script>
+        // 🔒 PASSWORD CONFIG
+        const SECRET_PASSWORD = "Alien"; 
+
+        // 📸 RELATIVE PATHS CONFIGURATIONS RUNNING EXTENSIONS (.jpg)
+        const memories = [
+            { path: 'assets/memory1.jpg', caption: 'Remember this day? Absolutely unforgettable! ❤️' },
+            { path: 'assets/memory2.jpg', caption: 'Laughing until our stomachs hurt. 😂' },
+            { path: 'assets/memory3.jpg', caption: 'Always finding wild adventures wherever we go. 🌟' }
+        ];
+
+        // Security check on window load
+        window.addEventListener("DOMContentLoaded", () => {
+            let isAuthenticated = false;
+            let attempts = 0;
+            while (!isAuthenticated && attempts < 5) {
+                let userGuess = prompt("🔒 Access Restricted! Enter the secret password:");
+                if (userGuess === null) {
+                    document.body.innerHTML = "<h2 style='color:white; padding-top:20%;'>Access Denied. Refresh to try again.</h2>";
+                    document.documentElement.style.visibility = 'visible';
+                    return;
+                }
+                if (userGuess.trim() === SECRET_PASSWORD) {
+                    isAuthenticated = true;
+                } else {
+                    attempts++;
+                    alert("❌ Incorrect password!");
+                }
+            }
+
+            if (isAuthenticated) {
+                document.documentElement.style.visibility = 'visible';
+                renderPhotos();
+                celebrate();
+            }
+        });
+
+        function renderPhotos() {
+            const gallery = document.getElementById("photoGallery");
+            gallery.innerHTML = ""; 
+            memories.forEach(photo => {
+                gallery.innerHTML += `
+                    <div class="photo-card">
+                        <img src="${photo.path}" alt="Memory" onerror="this.src='https://placehold.co/600x400?text=Image+Not+Found'">
+                        <div class="photo-caption">${photo.caption}</div>
+                    </div>`;
+            });
+        }
+
+        document.addEventListener("click", function initAudio() {
+             const music = document.getElementById('bgMusic');
+             document.removeEventListener("click", initAudio);
+        });
+
+        function celebrate() {
+            confetti({ particleCount: 100, spread: 70, origin: { x: 0.1, y: 0.6 } });
+            confetti({ particleCount: 100, spread: 70, origin: { x: 0.9, y: 0.6 } });
+        }
+
+        // Functions to handle the Cupcake Modal actions
+        function showCupcake() {
+            celebrate(); // Throw confetti alongside showing the picture!
+            document.getElementById("cupcakeModal").classList.add("active");
+        }
+
+        function closeCupcake() {
+            document.getElementById("cupcakeModal").classList.remove("active");
+        }
+
+        const music = document.getElementById('bgMusic');
+        function toggleMusic() {
+            if (music.paused) {
+                music.play().catch(e => console.log("Audio play blocked until user interaction"));
+                document.getElementById('musicStatus').innerText = "Pause Voice Note";
+            } else {
+                music.pause();
+                document.getElementById('musicStatus').innerText = "Play Voice Note";
+            }
+        }
+    </script>
+</body>
+</html>
